@@ -21,7 +21,9 @@ def Photo(e,tred,token,flag):
             if i==len(dev):
                 raise Exception('This camera is not avaiable')
 
-        tred["IP"]=dev[0].get_info(rs.camera_info(14))
+        cfg=rs.config()
+        cfg.enable_device(dev[i].get_info(rs.camera_info(1)))
+        #cfg.enable_stream(rs.stream.depth, 640, 480,rs.format.z16,6)
         
         print("3D cam started.")
         #tempo=time.time()
@@ -29,7 +31,7 @@ def Photo(e,tred,token,flag):
         while e.is_set():
             if(synchronizer.Synchro(token)==1):
                 try:
-                    pipe.start()
+                    pipe.start(cfg)
                     # This call waits until a new coherent set of frames is available on a device
                     # Calls to get_frame_data(...) and get_frame_timestamp(...) on a device will return stable values until wait_for_frames(...) is called
                     frames = pipe.wait_for_frames()
@@ -53,9 +55,11 @@ def Photo(e,tred,token,flag):
                 except Exception as exc:
                     tred["error"]=str(exc) 
                     synchronizer.Update()     
-        
+                    traceback.print_exc()
+                    break
     except Exception as err:
         tred["error"]=str(err)
         tred["status"]="error"
+        traceback.print_exc()
         synchronizer.removefromQueue(token)
         e.clear()

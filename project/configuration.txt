@@ -1,0 +1,1 @@
+{"topic":"RobotWashSouth","usb": {"IP" : "stopped", "exposure" : "auto"},"hd1": {"IP" : "192.168.1.150", "exposure" : "auto"},"hd2":{"IP" : "192.168.1.151", "exposure" : "auto"},"hd3":{"IP" : "192.168.1.152", "exposure" : "auto"},"3d": {"IP":"192.168.1.153","colorize": 0}}

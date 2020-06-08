@@ -45,7 +45,7 @@ def Photo(e,hd,device,token,exp):
                         filename=hd["name"]+"_%d" % (int(time.time()))
                         
                         img.Save(pylon.ImageFileFormat_Png, filename)
-                        Salva.SaveMetadata(filename)
+                        Salva.SaveMetadata(filename+".png")
                         hd["timestamp"]=str(time.gmtime().tm_year)+"-"+str(time.gmtime().tm_mon)+"-"+str(time.gmtime().tm_mday)+"T"+str(time.gmtime().tm_hour)+":"+str(time.gmtime().tm_min)+":"+str(time.gmtime().tm_sec)
                         img.Release()  
                         cam.StopGrabbing()                  

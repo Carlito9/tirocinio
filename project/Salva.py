@@ -18,7 +18,8 @@ def Salvabn(filename,data):
     meta.add_text("Yposition", str(pos[1]))
     meta.add_text("Zposition", str(pos[2]))"""
     SaveMetadata(filename)
-    Image.fromarray(data, 'I;16').save(filename+".png",'PNG')
+    
+    Image.fromarray(data).save(filename+".png",'PNG')
 
 def SaveMetadata(filename):
     f=open(filename+".txt",'w')

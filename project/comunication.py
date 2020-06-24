@@ -36,6 +36,7 @@ def on_message(client, userdata, msg) :
         shutdown=int(m_decode)
     else:
         Salva.SetMetadata(json.loads(m_decode),str(msg.topic)) 
+    
 
     
 def on_connect(client, userdata, flags, rc) :
@@ -50,7 +51,7 @@ e4=threading.Event()
 shutdown=0
 
 # Da cambiare
-Broker = "localhost"
+Broker = "hmi.polcevera.ubisive.it"
 
 
 
@@ -67,7 +68,7 @@ dicamera=dicCamera.createDic(dicamera,"3D","D435","PoE",0,IP=config["3d"]["IP"])
 
 # Da cambiare
 pub_topic = "Vision/"+config["topic"]+"/Cameras/"
-sub_topic = config["topic"]+"/#"
+sub_topic = "#" #config["topic"]+"/+/ActualPosition"
 
 devices={"HD1": config["hd1"]["IP"], "HD2": config["hd2"]["IP"], "HD3":config["hd3"]["IP"]}
 
@@ -77,9 +78,11 @@ client.on_message = on_message
 client.on_connect = on_connect
 
 #cambiare
-client.connect(Broker,1883, 60)
 
-client.subscribe(sub_topic)
+client.username_pw_set("client01",password="1oReANqFsMTWLRl8crcS4n4OO1fD83cdqrse13pogVSuhlcWZlZp2YTbC5RJ754")
+client.connect(Broker,8883, 60)
+client.enable_logger()
+client.subscribe(sub_topic,)
 
 client.loop_start()
 

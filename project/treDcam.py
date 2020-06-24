@@ -13,18 +13,18 @@ def Photo(e,tred,token,flag):
         color=rs.colorizer()
         ctx=rs.context()
         dev=ctx.query_devices()
-
+        
         i=0
         while True:
-            if dev[i].get_info(rs.camera_info(14))==tred["IP"]:
+            if dev[i].get_info(rs.camera_info.ip_address)==tred["IP"]:
                 break
             i=i+1
             if i==len(dev):
                 raise Exception('This camera is not avaiable')
 
         cfg=rs.config()
-        #cfg.enable_stream(rs.stream.depth, 640, 480,rs.format.z16,6)
-        cfg.enable_device(dev[i].get_info(rs.camera_info(1)))
+        cfg.enable_stream(rs.stream.depth, 640, 480,rs.format.z16,30)
+        cfg.enable_device(dev[i].get_info(rs.camera_info.serial_number))
         print("3D cam started.")
         #tempo=time.time()
         # Getting the depth sensor's depth scale (see rs-align example for explanation)
@@ -43,10 +43,15 @@ def Photo(e,tred,token,flag):
                     filename="3D_%d" % (int(time.time()))
                     if(flag==1):
                         depth_col=color.colorize(depth_frame)
+                        
                         depth_data = np.asanyarray(depth_col.get_data(),dtype=np.uint16)
                         Salva.Salva(filename, depth_data)
                     else:
                         depth_data = np.asanyarray(depth_frame.get_data(),dtype=np.uint16)
+                        #f=open("array"+str(tred["acquiredImages"]+10)+".txt",'w')
+                        #f.write(depth_data)
+                        #np.savetxt(("array"+str(tred["acquiredImages"])),depth_data)
+                        #print(str(len(depth_data)))
                         Salva.Salvabn(filename, depth_data) 
 
                     print("immagine 3d")

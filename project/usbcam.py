@@ -5,7 +5,8 @@ import pyexiv2
 import time
 import synchronizer
 
-#Check that /sys/module/usbcore/parameters/usbfs_memory_mb is set to 0
+#Verificare che /sys/module/usbcore/parameters/usbfs_memory_mb sia settato a 0
+
 
 def Photo(e,usb,token,exp):
     try:

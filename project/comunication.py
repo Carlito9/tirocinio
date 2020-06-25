@@ -6,10 +6,10 @@ import dicCamera
 import Salva
 import hdcam
 import usbcam
-#import treDcam
+import treDcam
 import synchronizer
 
-
+"""funzione che crea ed invia i json contenenti lo stato delle camere"""
 def send():
     i=0
     while i<5:
@@ -20,6 +20,7 @@ def send():
             client.publish(pub_topic+dicamera["cameras"][i]["type"],create)   
         i=i+1
 
+"""arresta tutti i thread in esecuzione"""
 def clearAll():
     e0.clear()
     e1.clear()
@@ -27,12 +28,13 @@ def clearAll():
     e3.clear()
     e4.clear()
 
-    
-# Riadattare con json ricevuto
+"""ricezione del messaggio in ingresso via mqtt e aggiornamento delle strutture dati delle camere,
+  se il messaggio arriva dal topic "Vision/"+config["topic"]+"/Cameras/shutdown" con valore 1,
+  il sistema si arresta"""
 def on_message(client, userdata, msg) :
     global shutdown
     m_decode=str(msg.payload.decode("utf-8","ignore"))
-    if msg.topic==config["topic"]+"/shutdown":
+    if msg.topic=="Vision/"+config["topic"]+"/Cameras/shutdown":
         shutdown=int(m_decode)
     else:
         Salva.SetMetadata(json.loads(m_decode),str(msg.topic)) 
@@ -40,7 +42,7 @@ def on_message(client, userdata, msg) :
 
     
 def on_connect(client, userdata, flags, rc) :
-    client.publish(pub_topic,"il sistema è pronto a ricevere una configurazione")
+    print("connessione mqtt riuscita")
 
 e0=threading.Event()
 e1=threading.Event()
@@ -50,15 +52,13 @@ e4=threading.Event()
 
 shutdown=0
 
-# Da cambiare
 Broker = "hmi.polcevera.ubisive.it"
-
-
 
 f=open("configuration.txt","r")
 
 config=json.loads(f.read())
 
+"""creazione dictonary contenente info su ogni camera"""
 dicamera={"cameras":[]}
 dicamera=dicCamera.createDic(dicamera,"MSI","VIS4X4","USB",0,status=config["usb"]["IP"])
 dicamera=dicCamera.createDic(dicamera,"HD","HD1","PoE",0,IP=config["hd1"]["IP"])
@@ -66,7 +66,7 @@ dicamera=dicCamera.createDic(dicamera,"HD","HD2","PoE",0,IP=config["hd2"]["IP"])
 dicamera=dicCamera.createDic(dicamera,"HD","HD3","PoE",0,IP=config["hd3"]["IP"])
 dicamera=dicCamera.createDic(dicamera,"3D","D435","PoE",0,IP=config["3d"]["IP"])
 
-# Da cambiare
+
 pub_topic = "Vision/"+config["topic"]+"/Cameras/"
 sub_topic = config["topic"]+"/+/ActualPosition"
 
@@ -77,21 +77,19 @@ client = paho.Client()
 client.on_message = on_message
 client.on_connect = on_connect
 
-#cambiare
-client.enable_logger()
-client.tls_set(certfile="/etc/ssl/certs")
+client.tls_set()
 client.username_pw_set("client01",password="1oReANqFsMTWLRl8crcS4n4OO1fD83cdqrse13pogVSuhlcWZlZp2YTbC5RJ754")
 client.connect(Broker,8883, 60)
 
 client.subscribe(sub_topic)
 
 client.loop_start()
-
 clearAll()
 
-
+"""main loop del programma nel quale i thread vengono lanciati e dentro il quale vengono inviati
+   dei json di aggiornamento sullo stato delle camere. Con qualche modifica alla struttura del 
+   programma può supportare un assegnazione dinamica delle camere"""
 tempo=time.time()
-#while (dicamera["cameras"][0]["status"]!="stopped" or dicamera["cameras"][1]["status"]!="stopped" or dicamera["cameras"][2]["status"]!="stopped" or dicamera["cameras"][3]["status"]!="stopped" or dicamera["cameras"][4]["status"]!="stopped"):
 while(shutdown==0):
     if(dicamera["cameras"][1]["status"]=="GenError" or dicamera["cameras"][2]["status"]=="GenError" or dicamera["cameras"][3]["status"]=="GenError"):
         clearAll()

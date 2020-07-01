@@ -1,3 +1,10 @@
+# Documentazione progetto
+
+## `comunication.py`
+
+Modulo principale contenente il loop all'interno del quale i vari thread associati alle camere vengono lanciati,
+sono presenti varie funzioni per permettere invio e ricezione dei messaggi via mqtt, i messaggi ricevuti vengono inviati al modulo Save.py che li inserirà tra i metadati. I parametri ricevuti dal file di configurazione verranno inviati al modulo DicCamera.py, il quale genererà le strutture dati associate alle varie camere. Infine all'interno del loop viene effettuato un continuo controllo dello stato delle camere, è presente una funzione di reboot per un particolare tipo di crash, inoltre ogni 60 secondi di esecuzione del loop viene inviato, via mqtt, un json contenente lo stato delle camere.
+
 ### moduli importati
 moduli di pubblico dominio:
 

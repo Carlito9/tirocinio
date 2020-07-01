@@ -1,11 +1,8 @@
 
 from pypylon import pylon,genicam
-import platform
 import threading
 import time
-import Salva
-import numpy as np
-import traceback
+import Save
 import synchronizer
 
 
@@ -39,13 +36,11 @@ def Photo(e,hd,device,token,exp):
                     result=cam.RetrieveResult(2000)
                     # Calling AttachGrabResultBuffer creates another reference to the
                     # grab result buffer. This prevents the buffer's reuse for grabbing.
-                    #arr=result.Array
                     img.AttachGrabResultBuffer(result)  
                     if(img.IsGrabResultBufferAttached()):
                         filename=hd["name"]+"_%d" % (int(time.time()))
-                        
+                        Save.SaveMetadata(filename+".png")
                         img.Save(pylon.ImageFileFormat_Png, filename)
-                        Salva.SaveMetadata(filename+".png")
                         hd["timestamp"]=str(time.gmtime().tm_year)+"-"+str(time.gmtime().tm_mon)+"-"+str(time.gmtime().tm_mday)+"T"+str(time.gmtime().tm_hour)+":"+str(time.gmtime().tm_min)+":"+str(time.gmtime().tm_sec)
                         img.Release()  
                         cam.StopGrabbing()                  

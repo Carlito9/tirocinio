@@ -3,13 +3,13 @@ import time
 import threading
 import json
 import dicCamera
-import Salva
+import Save
 import hdcam
 import usbcam
 import treDcam
 import synchronizer
 
-"""funzione che crea ed invia i json contenenti lo stato delle camere"""
+"""create and send the current state of the cameras"""
 def send():
     i=0
     while i<5:
@@ -20,7 +20,7 @@ def send():
             client.publish(pub_topic+dicamera["cameras"][i]["type"],create)   
         i=i+1
 
-"""arresta tutti i thread in esecuzione"""
+"""stops all running threads"""
 def clearAll():
     e0.clear()
     e1.clear()
@@ -28,21 +28,22 @@ def clearAll():
     e3.clear()
     e4.clear()
 
-"""ricezione del messaggio in ingresso via mqtt e aggiornamento delle strutture dati delle camere,
-  se il messaggio arriva dal topic "Vision/"+config["topic"]+"/Cameras/shutdown" con valore 1,
-  il sistema si arresta"""
+"""If the message comes from the topic config["topic"]+"/+/ActualPosition" the information
+   that the message contains are used to update the data structures of the cameras.
+   If the message comes from the topic "Vision/"+config["topic"]+"/Cameras/shutdown" with value 1,
+   the program stops"""
 def on_message(client, userdata, msg) :
     global shutdown
     m_decode=str(msg.payload.decode("utf-8","ignore"))
     if msg.topic=="Vision/"+config["topic"]+"/Cameras/shutdown":
         shutdown=int(m_decode)
     else:
-        Salva.SetMetadata(json.loads(m_decode),str(msg.topic)) 
+        Save.SetMetadata(json.loads(m_decode),str(msg.topic)) 
     
 
     
 def on_connect(client, userdata, flags, rc) :
-    print("connessione mqtt riuscita")
+    print("connection successful")
 
 e0=threading.Event()
 e1=threading.Event()
@@ -58,7 +59,7 @@ f=open("configuration.txt","r")
 
 config=json.loads(f.read())
 
-"""creazione dictonary contenente info su ogni camera"""
+"""creation of the dictonary which contains informations about the camera"""
 dicamera={"cameras":[]}
 dicamera=dicCamera.createDic(dicamera,"MSI","VIS4X4","USB",0,status=config["usb"]["IP"])
 dicamera=dicCamera.createDic(dicamera,"HD","HD1","PoE",0,IP=config["hd1"]["IP"])
@@ -86,9 +87,10 @@ client.subscribe(sub_topic)
 client.loop_start()
 clearAll()
 
-"""main loop del programma nel quale i thread vengono lanciati e dentro il quale vengono inviati
-   dei json di aggiornamento sullo stato delle camere. Con qualche modifica alla struttura del 
-   programma può supportare un assegnazione dinamica delle camere"""
+"""main loop of the program in which threads are launched and into which update json's on the status 
+   of the cameras are sent. With some changes to the structure of the
+   program, it will be able to support a change of the number of cameras connected
+   during the execution"""
 tempo=time.time()
 while(shutdown==0):
     if(dicamera["cameras"][1]["status"]=="GenError" or dicamera["cameras"][2]["status"]=="GenError" or dicamera["cameras"][3]["status"]=="GenError"):
@@ -149,7 +151,7 @@ while(shutdown==0):
         synchronizer.removefromQueue(5)
         e4.clear()
     #tempo distanziamento invio json
-    if((tempo+30)<time.time() and dicamera["cameras"][0]["status"]!="none"):
+    if((tempo+60)<time.time() and dicamera["cameras"][0]["status"]!="none"):
         send()
         tempo=time.time()
 

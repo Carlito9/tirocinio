@@ -1,11 +1,11 @@
 import threading
+import time
 
 current=0
 connected=0
 queue=[]
 
-"""funzione che manda in esecuzione il thread associato alla camera, a seconda della posizione 
-   corrente dell'indice coda che contiene i numeri associati ai thread"""
+"""the thread with the number that is in the current position of the queue is executed"""
 def Synchro(request):
     global current
     if (current>connected-1):
@@ -18,23 +18,25 @@ def Synchro(request):
     except IndexError:
         return 0
 
-"""terminato un ciclo while di un thread si sposta l'indice della coda avanti"""
+"""after one acquisition of a camera the queue index move to the next position"""
 def Update():
     global current
     global connected
     if(current>connected-2):
         current=0
+        #if the index returns to the first position the program waits
+        time.sleep(10)
     else:
         current=current+1
 
-"""aggiunta del numero associato ad una camera alla coda"""
+"""adding the number associated to a camera at the end of queue"""
 def addtoQueue(i):
     global queue
     global connected
     queue.append(i)
     connected=connected+1
 
-"""rimozione del numero associato ad una camera alla coda"""
+"""removing the number associated to a camera at the end of queue"""
 def removefromQueue(i):
     global queue
     global connected
@@ -46,7 +48,7 @@ def removefromQueue(i):
         connected=connected+1
     connected=connected-1
 
-"""svuotamento coda (in caso di reboot)"""
+"""removing all the elements of the queue (in case of reboot)"""
 def clearQueue():
     global queue
     global connected

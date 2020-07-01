@@ -1,4 +1,4 @@
-"""creazione del dictionary contenente info sulla camera"""
+"""creation of the dictionary which contains information about the camera """
 def createDic(dic,type,name,connection,timestamp,status="none",IP="N/A",acquiredImages=0,error="none"):
     if(IP=="N/A" and connection=="PoE"):
         status="stopped"

@@ -1,11 +1,10 @@
 from ximea import xiapi
 import threading
-import Salva
-import pyexiv2
+import Save
 import time
 import synchronizer
 
-#Verificare che /sys/module/usbcore/parameters/usbfs_memory_mb sia settato a 0
+#Check that /sys/module/usbcore/parameters/usbfs_memory_mb is set to 0
 
 
 def Photo(e,usb,token,exp):
@@ -14,7 +13,7 @@ def Photo(e,usb,token,exp):
         #start communication    
         cam.open_device()
         img = xiapi.Image()
-        #setting
+        #setting exposure
         if(exp=="auto"):
             cam.enable_aeag() 
         else: 
@@ -23,15 +22,13 @@ def Photo(e,usb,token,exp):
         print('Starting data acquisition...\n')
         cam.start_acquisition()
         cam.set_imgdataformat('XI_RGB24')
-        
         while e.is_set():
             if(synchronizer.Synchro(token)==1):
                 try:
                     cam.get_image(img)
                     data_num = img.get_image_data_numpy(invert_rgb_order=True)
-                    
                     filename='USB_%d' % (int(time.time()))                  
-                    Salva.Salva(filename,data_num)
+                    Save.Save(filename,data_num)
                     print("New usb image...")
                     usb["timestamp"]=str(time.gmtime().tm_year)+"-"+str(time.gmtime().tm_mon)+"-"+str(time.gmtime().tm_mday)+"T"+str(time.gmtime().tm_hour)+":"+str(time.gmtime().tm_min)+":"+str(time.gmtime().tm_sec)
                     synchronizer.Update()
@@ -48,8 +45,4 @@ def Photo(e,usb,token,exp):
         usb["status"]="error"
         synchronizer.removefromQueue(token)
         e.clear()
-    
-
-    #stop communication
-
     cam.close_device()
